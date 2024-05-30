@@ -2,8 +2,9 @@ import tkinter as tk
 import numpy as np
 from PIL import Image, ImageDraw
 
-winHight = 100
-winWidth = 100
+winHight = 500
+winWidth = 500
+imageFmt = '%.3f'
 
 class DrawingApp:
     def __init__(self, master):
@@ -31,8 +32,8 @@ class DrawingApp:
         img_array = np.array(self.image.convert('L'))
         #img_array = np.where(img_array < 128, 0, 1) converts to binary values
         img_array = img_array / 255.0
-        np.savetxt("tempImage.txt", img_array)
-        append_file("tempImage.txt", "ouput.txt")
+        np.savetxt("tempImage.txt", img_array, imageFmt)
+        append_file("tempImage.txt", "compiledImages.txt")
 
 
 def append_file(file1_path, file2_path):
