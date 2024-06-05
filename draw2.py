@@ -1,9 +1,13 @@
 import tkinter as tk
 import numpy as np
+import os
+import re
 from PIL import Image, ImageDraw
 
 winHight = 400
 winWidth = winHight
+
+
 
 class DrawingApp:
     def __init__(self, master):
@@ -16,17 +20,33 @@ class DrawingApp:
         self.last_x = None
         self.last_y = None
         self.stroke_count = 0
+        
+        #get the last file id 
+        files_list = [f for f in os.listdir('ImageData') if os.path.isfile(os.path.join('ImageData', f))]
+        largest_ID = 0
+        for file in files_list:
+            integers = [int(s) for s in re.findall(r'\d+', file)]
+            if(integers[0] > largest_ID):
+                largest_ID = integers[0]
+        self.file_count = largest_ID
+
+        #bind buttons 
         self.canvas.bind("<B1-Motion>", self.draw_line)
         self.canvas.bind("<Button-1>", self.new_image)
         self.canvas.bind("<ButtonRelease-1>", self.save_image)
-        self.image.save(f'canvas_{self.stroke_count}.png')
+
+        #self.image.save(f'canvas_{self.stroke_count}.png')
         original_canvas = np.array(self.image.convert('L')).flatten()
         self.last_canvas = original_canvas / 255
         self.data = None
 
+
+
     def new_image(self, event):
         self.stroke_image = Image.new('RGB', (winWidth, winHight), 'white')
         self.stroke_draw = ImageDraw.Draw(self.stroke_image)
+
+
 
     def draw_line(self, event):
         if self.last_x is not None and self.last_y is not None:
@@ -36,6 +56,8 @@ class DrawingApp:
             self.stroke_draw.line([self.last_x, self.last_y, event.x, event.y], fill='black')
         self.last_x = event.x
         self.last_y = event.y
+
+
 
     def save_image(self, event):
         self.last_x = None
@@ -48,13 +70,13 @@ class DrawingApp:
         stroke_data = np.array(self.stroke_image.convert('L')).flatten()
         stroke_data = stroke_data / 255
         insert_data = np.array([self.last_canvas, stroke_data])
-        insert_data = np.expand_dims(insert_data, axis = 0)
+        insert_data = insert_data[np.newaxis, np.newaxis, :]
 
         #cats new data with self data
         if self.data is None:
             self.data = insert_data
         else:
-            self.data = np.concatenate((self.data, insert_data), axis = 0)
+            self.data = np.concatenate((self.data, insert_data), axis = 1)
 
 
         print(self.data.shape)
@@ -63,8 +85,18 @@ class DrawingApp:
         self.last_canvas = last_canvas / 255
         self.stroke_count += 1
 
+        #save npy to folder
+        data_relative_path = f'ImageData/image{self.file_count + 1}data.npy'
+        data_absolute_path = os.path.join(os.path.dirname(__file__), data_relative_path)
+        np.save(data_absolute_path, self.data)
+        #save png to folder
+        png_relative_path = f'FinalImagePNG/image{self.file_count + 1}PNG.png'
+        png_absolute_path = os.path.join(os.path.dirname(__file__), png_relative_path)
+        self.image.save(png_absolute_path)
+        
+
         #over write np save
-        np.save('imageData.npy', self.data)
+        """ np.save('imageData.npy', self.data)
         if (self.image_number > 0):
             if(self.imageData.shape[0] <= self.image_number):
                 self.imageData = np.concatenate((self.imageData, self.data), axis = 0)
@@ -73,7 +105,9 @@ class DrawingApp:
                 self.imageData[self.image_number] = self.data
             np.save('allImageData.npy', self.imageData)
         else: 
-            np.save('allImageData.npy', self.data)
+            np.save('allImageData.npy', self.data) """
+    
+    
 
 
 root = tk.Tk() 
