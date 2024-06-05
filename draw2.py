@@ -64,8 +64,17 @@ class DrawingApp:
         self.stroke_count += 1
 
         #over write np save
-        np.save('image1data.npy', self.data)
- 
+        np.save('imageData.npy', self.data)
+        if (self.image_number > 0):
+            if(self.imageData.shape[0] <= self.image_number):
+                self.imageData = np.concatenate((self.imageData, self.data), axis = 0)
+                
+            else:
+                self.imageData[self.image_number] = self.data
+            np.save('allImageData.npy', self.imageData)
+        else: 
+            np.save('allImageData.npy', self.data)
+
 
 root = tk.Tk() 
 app = DrawingApp(root)
