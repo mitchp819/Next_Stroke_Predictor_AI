@@ -70,16 +70,15 @@ class DrawingApp:
         stroke_data = np.array(self.stroke_image.convert('L')).flatten()
         stroke_data = stroke_data / 255
         insert_data = np.array([self.last_canvas, stroke_data])
-        insert_data = insert_data[np.newaxis, np.newaxis, :]
+        insert_data = insert_data[np.newaxis, :]
 
         #cats new data with self data
         if self.data is None:
             self.data = insert_data
         else:
-            self.data = np.concatenate((self.data, insert_data), axis = 1)
-
-
+            self.data = np.concatenate((self.data, insert_data), axis = 0)
         print(self.data.shape)
+
         #over write last_canvas for following iteration
         last_canvas = np.array(self.image.convert('L')).flatten()
         self.last_canvas = last_canvas / 255
@@ -94,18 +93,6 @@ class DrawingApp:
         png_absolute_path = os.path.join(os.path.dirname(__file__), png_relative_path)
         self.image.save(png_absolute_path)
         
-
-        #over write np save
-        """ np.save('imageData.npy', self.data)
-        if (self.image_number > 0):
-            if(self.imageData.shape[0] <= self.image_number):
-                self.imageData = np.concatenate((self.imageData, self.data), axis = 0)
-                
-            else:
-                self.imageData[self.image_number] = self.data
-            np.save('allImageData.npy', self.imageData)
-        else: 
-            np.save('allImageData.npy', self.data) """
     
     
 
