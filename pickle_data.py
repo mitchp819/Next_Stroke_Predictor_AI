@@ -10,5 +10,5 @@ arrays = []
 for f in files:
     arrays.append(np.load(f))
 
-with open("AllImageData.pkl", "wb") as file:
+with open("PickledAllImageData.pkl", "wb") as file:
     pickle.dump(arrays, file)

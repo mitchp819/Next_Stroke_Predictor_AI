@@ -13,12 +13,30 @@ class Network2(object):
 
 
 
-    def SGD(self, learning_rate, epochs):
-        with open('AllImageData.pkl', 'rb') as f:
-            training_data_list = pickle.load(f)
-        list_length = len(training_data_list)
-        random.shuffle(training_data_list)
-        print(training_data_list)
+    def SGD(self, learning_rate, epochs, mini_batch_size):
+        training_data = np.load('NPY_AllImageData160000.npy')
+        n = training_data.shape[0]
+
+        for j in range(epochs):
+            #shuffles training data along axis=0
+            idx = np.random.rand(*training_data.shape).argsort(axis=0)
+            np.take_along_axis(training_data, idx, axis=0)
+
+            #splits training data into minibatches 
+            num_groups = training_data.shape[0]//mini_batch_size
+            mini_batches = np.array_split(training_data, num_groups)
+
+            for mini_batch in mini_batches:
+                self.update_mini_batch(mini_batch, learning_rate)
+            print("Epoch {} complete".format(j))
+
+
+
+    def update_mini_batch(self, mini_batch, learning_rate):
+        #creates copys of biases and weights filled with zeros 
+        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
+
 
 
 
@@ -31,4 +49,4 @@ def softplus_prime(z):
     return np.exp(z)/(1+np.exp(z))
 
 net = Network2([160000,30,160000])
-Network2.SGD(net, 3, 10)
+Network2.SGD(net, 3, 2, 10)
