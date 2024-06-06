@@ -14,9 +14,21 @@ class Network2(object):
 
 
     def SGD(self, learning_rate, epochs, mini_batch_size):
-        training_data = np.load('NPY_AllImageData160000.npy')
-        n = training_data.shape[0]
+        #maybe do this and pickle to make it faster to load data
+        input_data = np.load('NPY_AllImageData160000.npy')
+        n = input_data.shape[0]
+        training_data = []
+        zipped_data_point = zip(input_data[5, 0, :], input_data[5, 1, :])
+        print(zipped_data_point)
+        for x in range(n):
+            zipped_data_point = zip(input_data[x, 0, :], input_data[x, 1, :])
+            training_data.append(zipped_data_point)
+        
 
+
+
+"""         n = training_data.shape[0]
+        
         for j in range(epochs):
             #shuffles training data along axis=0
             idx = np.random.rand(*training_data.shape).argsort(axis=0)
@@ -30,13 +42,12 @@ class Network2(object):
                 self.update_mini_batch(mini_batch, learning_rate)
             print("Epoch {} complete".format(j))
 
-
-
     def update_mini_batch(self, mini_batch, learning_rate):
         #creates copys of biases and weights filled with zeros 
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
+        for image in mini_batch: """
 
 
 
