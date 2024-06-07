@@ -16,6 +16,5 @@ for image_file in files:
     for entry in axis01_list:
         zipped_data.append(list(zip(*entry)))
 
-print(len(zipped_data))
 with open("PickledAllImageData.pkl", "wb") as file:
     pickle.dump(zipped_data, file)

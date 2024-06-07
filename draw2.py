@@ -69,7 +69,6 @@ class DrawingApp:
         
         stroke_data = np.array(self.stroke_image.convert('L')).flatten()
         stroke_data = stroke_data / 255
-        """MAYBE WE ZIP THIS"""
         insert_data = np.array([self.last_canvas, stroke_data])
         insert_data = insert_data[np.newaxis, :]
 

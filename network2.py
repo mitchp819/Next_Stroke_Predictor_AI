@@ -41,6 +41,10 @@ class Network2(object):
 
         for image in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(image[0,:], image[1,:])
+            nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.weights = [w - (learning_rate / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
+        self.biases = [b - (learning_rate / len(mini_batch)) * nb for b, nb in zip(self.biases, nabla_b)]
 
 
 
@@ -58,7 +62,7 @@ class Network2(object):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         
-        #feedforward
+        #feedforward: store output of each layer in list activations
         activation = canvas
         activations = [canvas]
         zs = []
@@ -68,10 +72,8 @@ class Network2(object):
             activation = softplus(z)
             activations.append(activation)
 
-
         #backward pass 
         delta = self.cost_derivative(activations[-1], stroke) * softplus_prime(zs[-1])
-        print(delta.shape)
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         for l in range(2, self.num_layers):
@@ -87,15 +89,36 @@ class Network2(object):
 
     def cost_derivative(self, output_activations, y):
         return (output_activations - y)
+    
+
+
+    def feedforward(self, a):
+        a = a[:, np.newaxis]
+        for b, w in zip(self.biases, self.weights):
+            a = self.activation(np.dot(w, a) + b)
+        return a
 
 
 
 def softplus(z):
+    z = np.nan_to_num(z, nan=0.0, posinf=np.finfo(np.float64).max, neginf=np.finfo(np.float64).min)
     return np.logaddexp(0,z)
 
 def softplus_prime(z):
-    return np.where(z > 30, 1.0, np.exp(z) / (1 + np.exp(z)))
+    # Clip z to avoid overflow
+    z = np.clip(z, -500, 500)
+    
+    # Compute the sigmoid function
+    with np.errstate(over='ignore', invalid='ignore'):
+        result = np.where(z > 30, 1.0, np.exp(z) / (1 + np.exp(z)))
+    
+    return result
 
 
 net = Network2([160000, 100, 50, 160000])
 Network2.SGD(net, 3, 2, 10)
+
+input_data = np.load('ImageData/image1data.npy')
+generated_data = Network2.feedforward(input_data)
+print(generated_data.shape)
+np.save('generated_image.npy', generated_data)
