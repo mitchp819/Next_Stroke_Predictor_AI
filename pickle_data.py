@@ -14,7 +14,6 @@ for image_file in files:
     axis01_list = [[image_npArray[i, j, :].tolist() for j in range(image_npArray.shape[1])] for i in range(image_npArray.shape[0])] 
     
     for entry in axis01_list:
-        print(len(entry))
         zipped_data.append(list(zip(*entry)))
 
 print(len(zipped_data))
