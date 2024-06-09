@@ -2,7 +2,7 @@ import numpy as np
 import glob
 import os
 
-path = os.path.join(os.path.dirname(__file__), 'ImageData/*.npy')
+path = os.path.join(os.path.dirname(__file__), 'ImageData10000/*.npy')
 files = sorted(glob.glob(path))
 arrays = []
 

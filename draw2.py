@@ -4,7 +4,7 @@ import os
 import re
 from PIL import Image, ImageDraw
 
-winHight = 400
+winHight = 100
 winWidth = winHight
 
 
@@ -22,7 +22,7 @@ class DrawingApp:
         self.stroke_count = 0
         
         #get the last file id 
-        files_list = [f for f in os.listdir('ImageData') if os.path.isfile(os.path.join('ImageData', f))]
+        files_list = [f for f in os.listdir(f'ImageData{winWidth*winHight}') if os.path.isfile(os.path.join(f'ImageData{winWidth*winHight}', f))]
         largest_ID = 0
         for file in files_list:
             integers = [int(s) for s in re.findall(r'\d+', file)]
@@ -85,11 +85,11 @@ class DrawingApp:
         self.stroke_count += 1
 
         #save npy to folder
-        data_relative_path = f'ImageData/image{self.file_count + 1}data.npy'
+        data_relative_path = f'ImageData{winHight*winWidth}/image{self.file_count + 1}data.npy'
         data_absolute_path = os.path.join(os.path.dirname(__file__), data_relative_path)
         np.save(data_absolute_path, self.data)
         #save png to folder
-        png_relative_path = f'FinalImagePNG/image{self.file_count + 1}PNG.png'
+        png_relative_path = f'FinalImagePNG{winHight*winWidth}/image{self.file_count + 1}PNG.png'
         png_absolute_path = os.path.join(os.path.dirname(__file__), png_relative_path)
         self.image.save(png_absolute_path)
         

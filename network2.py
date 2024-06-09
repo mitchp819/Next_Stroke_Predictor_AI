@@ -6,8 +6,8 @@ class Network2(object):
     def __init__(self, sizes):
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.biases = [np.random.randn(y,1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+        self.biases = [np.random.randn(y, 1).astype(np.float16) for y in sizes[1:]]
+        self.weights = [np.random.randn(y, x).astype(np.float16) for x, y in zip(sizes[:-1], sizes[1:])]
         self.activation = softplus
         self.activation_prime = softplus_prime
 
@@ -15,7 +15,7 @@ class Network2(object):
 
     def SGD(self, learning_rate, epochs, mini_batch_size):
         #maybe do this and pickle to make it faster to load data
-        training_data = np.load('NPY_AllImageData160000.npy')
+        training_data = np.load('NPY_AllImageData10000.npy')
 
         n = training_data.shape[0]
         
@@ -94,8 +94,10 @@ class Network2(object):
 
     def feedforward(self, a):
         a = a[:, np.newaxis]
+        print(a.shape)
         for b, w in zip(self.biases, self.weights):
-            a = self.activation(np.dot(w, a) + b)
+            print(a.shape)
+            a = softplus(np.dot(w, a) + b)
         return a
 
 
@@ -115,10 +117,18 @@ def softplus_prime(z):
     return result
 
 
-net = Network2([160000, 100, 50, 160000])
-Network2.SGD(net, 3, 2, 10)
+net = Network2([10000, 5000, 5000, 10000])
+Network2.SGD(net, 4, 10, 10)
 
-input_data = np.load('ImageData/image1data.npy')
-generated_data = Network2.feedforward(input_data)
+np_data = np.load('ImageData10000/image1data.npy')
+
+input_data = np_data[1,1,:]
+print(input_data.shape)
+generated_data = Network2.feedforward(net, input_data)
 print(generated_data.shape)
 np.save('generated_image.npy', generated_data)
+
+input_data = np_data[-1,1,:]
+generated_data = Network2.feedforward(net, input_data)
+print(generated_data.shape)
+np.save('generated_image2.npy', generated_data)
