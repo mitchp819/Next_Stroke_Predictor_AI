@@ -10,6 +10,7 @@ winWidth = winHight
 
 
 class DrawingApp:
+
     def __init__(self, master):
         self.master = master
         self.canvas = tk.Canvas(self.master, width = winWidth, height = winHight, bg = 'white')
@@ -17,6 +18,15 @@ class DrawingApp:
         self.stroke_canvas = tk.Canvas(self.master, width = winWidth, height = winHight, bg = 'white')
         self.image = Image.new('RGB', (winWidth, winHight), 'white')
         self.draw = ImageDraw.Draw(self.image)
+
+        self.brush_size = tk.IntVar()
+        self.brush_size.set(1)
+        self.brush_slider = tk.Scale(self.master, from_=1, to=50, orient = "horizontal", variable = self.brush_size)
+        self.brush_slider.pack()
+
+        self.color_scale = tk.Scale(self.master, from_=0, to=100, orient="horizontal")
+        self.color_scale.pack()
+
         self.last_x = None
         self.last_y = None
         self.stroke_count = 0
@@ -48,12 +58,15 @@ class DrawingApp:
 
 
 
+
+
     def draw_line(self, event):
+        color = scale_to_color(self.color_scale.get())
         if self.last_x is not None and self.last_y is not None:
-            self.canvas.create_line(self.last_x, self.last_y, event.x, event.y, fill='black')
-            self.draw.line([self.last_x, self.last_y, event.x, event.y], fill='black')
-            self.stroke_canvas.create_line(self.last_x, self.last_y, event.x, event.y, fill='black')
-            self.stroke_draw.line([self.last_x, self.last_y, event.x, event.y], fill='black')
+            self.canvas.create_line(self.last_x, self.last_y, event.x, event.y, width = self.brush_size.get(),fill=color)
+            self.draw.line([self.last_x, self.last_y, event.x, event.y],  width = self.brush_size.get(),fill=color)
+            self.stroke_canvas.create_line(self.last_x, self.last_y, event.x, event.y, width = self.brush_size.get(), fill=color)
+            self.stroke_draw.line([self.last_x, self.last_y, event.x, event.y], width = self.brush_size.get(),fill=color)
         self.last_x = event.x
         self.last_y = event.y
 
@@ -64,7 +77,7 @@ class DrawingApp:
         self.last_y = None
 
         #to save images as png 
-        #self.stroke_image.save(f'stroke_{self.stroke_count}.png')
+        self.stroke_image.save(f'stroke_{self.stroke_count}.png')
         #self.image.save(f'canvas_{self.stroke_count + 1}.png')
         
         stroke_data = np.array(self.stroke_image.convert('L')).flatten()
@@ -93,7 +106,13 @@ class DrawingApp:
         png_absolute_path = os.path.join(os.path.dirname(__file__), png_relative_path)
         self.image.save(png_absolute_path)
         
-    
+def scale_to_color(value):
+        # Convert the scale value (0-100) to a grayscale color (0-255)
+        color_value = int((value / 100) * 255)
+        # Convert the color value to a hexadecimal string and pad with zeros if necessary
+        hex_color = "{:02x}".format(color_value)
+        # Return the color in the format expected by tkinter
+        return "#" + hex_color * 3   
     
 
 

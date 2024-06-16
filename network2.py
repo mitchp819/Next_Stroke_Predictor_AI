@@ -13,8 +13,13 @@ class Network2(object):
 
 
 
-    def SGD(self, learning_rate, epochs, mini_batch_size):
-        #maybe do this and pickle to make it faster to load data
+    def SGD(self, learning_rate, epochs, mini_batch_size, input_weights = None, input_biases = None):
+        
+        if input_weights is not None:
+            self.weights = np.load(input_weights)
+        if input_biases is not None:
+            self.biases = np.load(input_biases)
+
         training_data = np.load('NPY_AllImageData10000.npy')
 
         n = training_data.shape[0]
@@ -31,6 +36,10 @@ class Network2(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, learning_rate)
             print("Epoch {} complete".format(j))
+        
+        np.save('weights.npy', self.weights)
+        np.save('biases.npy', self.biases)
+
 
 
 
@@ -118,7 +127,8 @@ def softplus_prime(z):
 
 
 net = Network2([10000, 5000, 5000, 10000])
-Network2.SGD(net, 4, 10, 10)
+#(self, Learning Rate, Epochs, Mini Batch size)
+Network2.SGD(net, 10, 30, 10)
 
 np_data = np.load('ImageData10000/image1data.npy')
 
