@@ -76,8 +76,8 @@ class DrawingApp:
         self.last_x = None
         self.last_y = None
 
-        #to save images as png 
-        self.stroke_image.save(f'stroke_{self.stroke_count}.png')
+        #to save stroke images as png 
+        #self.stroke_image.save(f'stroke_{self.stroke_count}.png')
         #self.image.save(f'canvas_{self.stroke_count + 1}.png')
         
         stroke_data = np.array(self.stroke_image.convert('L')).flatten()

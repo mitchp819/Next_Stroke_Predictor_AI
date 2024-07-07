@@ -1,6 +1,8 @@
 import random
+import os
 import pickle
 import numpy as np
+from datetime import datetime
 
 class Network2(object):
     def __init__(self, sizes):
@@ -14,11 +16,29 @@ class Network2(object):
 
 
     def SGD(self, learning_rate, epochs, mini_batch_size, input_weights = None, input_biases = None):
-        
+        print("Training Network with Stochastic Gradient Descent")
+        print("Training Initiated at Time:", datetime.now())
+
+        #get existing weights and biases
         if input_weights is not None:
-            self.weights = np.load(input_weights)
+            if os.path.isfile(input_weights):
+                with open(input_weights, 'rb') as file: 
+                    try:
+                        self.weights = pickle.load(file)
+                    except pickle.UnpicklingError:
+                        print("Error: input_weights not valid pickle file.")
+            else:
+                print("Error: input_weights file does not exist. Weights will be random")
+
         if input_biases is not None:
-            self.biases = np.load(input_biases)
+            if os.path.isfile(input_biases):
+                with open(input_biases, 'rb') as file:
+                    try:  
+                        self.biases = pickle.load(file)
+                    except pickle.UnpicklingError:
+                        print("Error: input_biases not valid pickle file.")
+            else:
+                print("Error: input_biases file does not exist. Biases will be random")
 
         training_data = np.load('NPY_AllImageData10000.npy')
 
@@ -37,8 +57,16 @@ class Network2(object):
                 self.update_mini_batch(mini_batch, learning_rate)
             print("Epoch {} complete".format(j))
         
-        np.save('weights.npy', self.weights)
-        np.save('biases.npy', self.biases)
+
+        #this is wrong have to pickle instead
+        with open('weights.pkl', 'wb') as file:
+            pickle.dump(self.weights, file)
+        
+        with open('biases.pkl', 'wb') as file:
+            pickle.dump(self.biases, file)
+        
+        print("Training Finished at Time:", datetime.now())
+    
 
 
 
@@ -101,7 +129,28 @@ class Network2(object):
     
 
 
-    def feedforward(self, a):
+    def feedforward(self, a, input_weights, input_biases):
+        #get existing weights and biases
+        if input_weights is not None:
+            if os.path.isfile(input_weights):
+                with open(input_weights, 'rb') as file: 
+                    try:
+                        self.weights = pickle.load(file)
+                    except pickle.UnpicklingError:
+                        print("Error: input_weights not valid pickle file.")
+            else:
+                print("Error: input_weights file does not exist. Weights will be random")
+
+        if input_biases is not None:
+            if os.path.isfile(input_biases):
+                with open(input_biases, 'rb') as file:
+                    try:  
+                        self.biases = pickle.load(file)
+                    except pickle.UnpicklingError:
+                        print("Error: input_biases not valid pickle file.")
+            else:
+                print("Error: input_biases file does not exist. Biases will be random")
+
         a = a[:, np.newaxis]
         print(a.shape)
         for b, w in zip(self.biases, self.weights):
@@ -128,7 +177,7 @@ def softplus_prime(z):
 
 net = Network2([10000, 5000, 5000, 10000])
 #(self, Learning Rate, Epochs, Mini Batch size)
-Network2.SGD(net, 10, 30, 10)
+Network2.SGD(net, 4, 30, 10)
 
 np_data = np.load('ImageData10000/image1data.npy')
 
