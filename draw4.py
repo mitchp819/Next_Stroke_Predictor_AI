@@ -72,22 +72,24 @@ class DrawingApp:
         #Get image cord from win 
         x = event.x // self.image_scalor
         y = event.y // self.image_scalor
+            
+        #draws on canvas
+        rect = self.canvas.create_rectangle(x * self.image_scalor, y * self.image_scalor,
+                            (x + 1) * self.image_scalor, (y + 1) * self.image_scalor,
+                            fill= color, outline=color, width= self.brush_size.get())
+        
+        #converts canvas rect into image coords
+        x1, y1, x2, y2 = self.canvas.bbox(rect)
+        x1 = int(x1 // self.image_scalor)
+        y1 = int(y1 // self.image_scalor)
+        x2 = int(x2 // self.image_scalor)
+        y2 = int(y2 // self.image_scalor)
 
         #update np canvas data
-        self.np_main_canvas_data[y,x] = color_value
-        self.np_stroke_canvas_data[y,x] = color_value
-
-        brush_size = self.brush_size.get()
-
-        """ for b in range(brush_size):
-            self.np_main_canvas_data[y,x] = color_value
-            self.np_stroke_canvas_data[y,x] = color_value """
-            
-
-        #draws on canvas
-        self.canvas.create_rectangle(x * self.image_scalor, y * self.image_scalor,
-                            (x + 1) * self.image_scalor, (y + 1) * self.image_scalor,
-                            fill= color, outline=color, width=brush_size)
+        for x in range(x1, x2):
+            for y in range(y1, y2):
+                self.np_main_canvas_data[y, x] = color_value
+                self.np_stroke_canvas_data[y, x] = 1
 
 
 
@@ -100,33 +102,40 @@ class DrawingApp:
         x = event.x // self.image_scalor
         y = event.y // self.image_scalor
 
-        #update np canvas data
-        self.np_main_canvas_data[y, x] = color_value
-        self.np_stroke_canvas_data[y,x] = 1
-
         #draws on canvas
-        self.canvas.create_rectangle(x * self.image_scalor, y * self.image_scalor,
+        rect = self.canvas.create_rectangle(x * self.image_scalor, y * self.image_scalor,
                             (x + 1) * self.image_scalor, (y + 1) * self.image_scalor,
                             fill=color, outline=color,width=self.brush_size.get())
+        
+        #converts canvas rect into image coords
+        x1, y1, x2, y2 = self.canvas.bbox(rect)
+        x1 = int(x1 // self.image_scalor)
+        y1 = int(y1 // self.image_scalor)
+        x2 = int(x2 // self.image_scalor)
+        y2 = int(y2 // self.image_scalor)
+
+        #update np canvas data
+        for x in range(x1, x2):
+            for y in range(y1, y2):
+                self.np_main_canvas_data[y, x] = color_value
+                self.np_stroke_canvas_data[y, x] = 1
 
 
 
     def compile_np_array(self, event):
         #converts np canvas_data into and Image
-        
         pil_stroke_img = Image.fromarray(self.np_stroke_canvas_data, mode="L")
 
         #flatten and normalize between 0-1
         flat_normal_last_canvas = self.last_canvas.flatten() / 255
         flat_normal_stroke_canvas = self.np_stroke_canvas_data.flatten() /255
         
+        #saves color values in array
         filler =  np.array([.5])
         color_data = np.array([self.color_scale.get() / 255])
         
         flat_normal_last_canvas = np.concatenate((flat_normal_last_canvas,filler))
         flat_normal_stroke_canvas = np.concatenate((flat_normal_stroke_canvas, color_data))
-
-        print(flat_normal_last_canvas.shape)
 
         insertion_data = np.array([flat_normal_last_canvas, flat_normal_stroke_canvas])
         insertion_data = insertion_data[np.newaxis, :]
