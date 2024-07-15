@@ -62,6 +62,9 @@ class DrawingApp:
 
 
     def on_mouse_down(self, event):
+        if (event.x >= self.winWidth or event.y >= self.winHeight):
+            print("outside")
+
         #Create Stroke Canvas
         self.np_stroke_canvas_data = np.ones((self.imageWidth, self.imageHeight), dtype= np.uint8) * 255
 
@@ -117,8 +120,9 @@ class DrawingApp:
         #update np canvas data
         for x in range(x1, x2):
             for y in range(y1, y2):
-                self.np_main_canvas_data[y, x] = color_value
-                self.np_stroke_canvas_data[y, x] = 1
+                if (x < self.imageWidth and y < self.imageHeight):
+                    self.np_main_canvas_data[y, x] = color_value
+                    self.np_stroke_canvas_data[y, x] = 1
 
 
 
@@ -162,6 +166,7 @@ class DrawingApp:
         png_relative_path = f'FinalImagePNG{self.imageHeight * self.imageWidth}/image{self.file_count + 1}PNG.png'
         png_absolute_path = os.path.join(os.path.dirname(__file__), png_relative_path)
         pil_main_img.save(png_absolute_path)
+        print("Image and Data Saved")
     
 def color_value_to_hex (value):
     return f"#{value:02x}{value:02x}{value:02x}"
