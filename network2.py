@@ -40,7 +40,7 @@ class Network2(object):
             else:
                 print("Error: input_biases file does not exist. Biases will be random")
 
-        training_data = np.load('NPY_AllImageData10000.npy')
+        training_data = np.load('NPY_AllImageData16385.npy')
 
         n = training_data.shape[0]
         
@@ -102,6 +102,9 @@ class Network2(object):
         #feedforward: store output of each layer in list activations
         activation = canvas
         activations = [canvas]
+
+        print(activation.shape)
+        print(self.weights[0].shape)
         zs = []
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation) + b
@@ -151,6 +154,8 @@ class Network2(object):
             else:
                 print("Error: input_biases file does not exist. Biases will be random")
 
+        
+
         a = a[:, np.newaxis]
         print(a.shape)
         for b, w in zip(self.biases, self.weights):
@@ -175,7 +180,7 @@ def softplus_prime(z):
     return result
 
 
-net = Network2([10000, 5000, 5000, 10000])
+net = Network2([16385, 512, 1024, 16385])
 #(self, Learning Rate, Epochs, Mini Batch size)
 Network2.SGD(net, 4, 30, 10)
 
@@ -191,3 +196,4 @@ input_data = np_data[-1,1,:]
 generated_data = Network2.feedforward(net, input_data)
 print(generated_data.shape)
 np.save('generated_image2.npy', generated_data)
+
