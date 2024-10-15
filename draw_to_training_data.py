@@ -2,6 +2,7 @@ import tkinter as tk
 import numpy as np
 import os
 import re
+import image_processing
 from PIL import Image, ImageDraw
 
 class DrawingApp:
@@ -57,7 +58,24 @@ class DrawingApp:
 
         #save button
         save_button = tk.Button(root, text="Save Image", command = self.save_data)
-        save_button.pack()
+        save_button.pack() 
+
+        #emotion drop down
+        #self.emotion = tk.StringVar(root)
+        #self.emotion.set("No Emotion Selected")
+        #self.dropdown = tk.OptionMenu(root, self.emotion, "No Emotion Selected", "Option 2", "Option 3")
+        #self.dropdown.pack(pady=20)
+
+        #proccesss_image_button
+        self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", "64x64_dataset.npy", "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
+        process_image_button = tk.Button(root, text = "Process Image", command = self.process_image )
+        process_image_button.pack()
+
+    def process_image(self):
+        self.img_process.input_data = self.img_process.compare_img_with_dataset(0,0)
+        self.ouput_img = self.img_process.compare_img_with_dataset(self.img_process.input_data  )
+        self.img_process.canvas_np_img_to_png(self.img_process.data_set[self.output_img,0,:], "similar_img.png")
+        pass
 
 
 
