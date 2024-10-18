@@ -67,14 +67,21 @@ class DrawingApp:
         #self.dropdown.pack(pady=20)
 
         #proccesss_image_button
-        self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", "64x64_dataset.npy", "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
+        self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", '64x64_dataset.npy', "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
         process_image_button = tk.Button(root, text = "Process Image", command = self.process_image )
         process_image_button.pack()
+        pass
+
+
 
     def process_image(self):
-        self.img_process.input_data = self.img_process.compare_img_with_dataset(0,0)
-        self.ouput_img = self.img_process.compare_img_with_dataset(self.img_process.input_data  )
-        self.img_process.canvas_np_img_to_png(self.img_process.data_set[self.output_img,0,:], "similar_img.png")
+        input_img = self.np_main_canvas_data.flatten() / 255
+        np.append(input_img, .5)
+        print(input_img)
+        print(f"Process Image of shape {input_img.shape}")
+        Image.fromarray(self.np_main_canvas_data.astype('uint8'), 'L').save("input_canvas.png")
+        output = self.img_process.compare_img_with_dataset(input_img)
+        print(f"\n \n output image index = {output}")
         pass
 
 
