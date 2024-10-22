@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+#np.set_printoptions(threshold=sys.maxsize)
 from PIL import Image
 import random
 
@@ -8,7 +10,7 @@ class img_processer:
                   data_set_16_file: str = None, data_set_8_file: str= None, data_set_4_file: str = None, input_data = None):
        
         self.data_set = np.load(data_set_128_file)
-        np.random.shuffle(self.data_set)
+        #np.random.shuffle(self.data_set)
         print(f"Data Set of shape {self.data_set.shape} Loaded")
 
         if data_set_64_file != None:
@@ -23,6 +25,9 @@ class img_processer:
             self.data_set_4 = np.load(data_set_4_file)
 
         self.input_data = input_data
+        self.lowest_varience = 100
+        self.best_image_index = -1
+        
         
     
     def get_single_image_data(self, index: int, canvas_or_stroke: int):
@@ -102,155 +107,26 @@ class img_processer:
         print(f"Scaled to 4x4 {downscaled_dataset5.shape} -------------------------------------------------------------############")
     
     def compare_img_with_dataset(self, input_image):
-        index_list4 = []
-        index_list8 = []
-        index_list16 = []
-        index_list32 = []
-        index_list64 = []
-        index_list128 = []
-        index_list4.clear()
-        index_list8.clear()
-        index_list16.clear()
-        index_list32.clear()
-        index_list64.clear()
-        index_list128.clear()
-
-        downscaled64 = self.downscale_img(input_image)
-        downscaled32 = self.downscale_img(downscaled64)
-        downscaled16 = self.downscale_img(downscaled32)
-        downscaled8 = self.downscale_img(downscaled16)
-        downscaled4 = self.downscale_img(downscaled8)
-        print(f"dataset 4 shape = {self.data_set_4.shape}")
-
-
-        start_varience = .01
-        variance_interval = .01
-        max_varience = .5
-        
-        print("\n---------------- 4x4 ---------------")
-        v = start_varience
-
-        while(len(index_list4) <= 200 and v < max_varience):
-            index_list4 = self.find_similar(downscaled4, self.data_set_4, None, v, .00001)
-            v += variance_interval
-            print(f"v = {v}")
-        if (len(index_list4)==0):
-            print("no match 4x4")
-            #some sort of error
-            print("ERROR: compare_img_with_dataset did not find a similar image")
-            return -1
-        
-        print("\n---------------- 8x8 ---------------")
-        v = start_varience
-
-        while(len(index_list8) <= 170 and v < max_varience):
-            index_list8 = self.find_similar(downscaled8, self.data_set_8, index_list4, v, 0) 
-            v += variance_interval
-            print(f"v = {v}")
-
-        if (len(index_list8)==0):
-            print("no match 8x8")
-            return_value = index_list4[random.randint(0, len(index_list4)-1)]
-            self.canvas_np_img_to_png(self.data_set[return_value,0,:], "similar_img.png")
-            return
-        
-        print("\n---------------- 16x16 ---------------")
-        v = start_varience
-
-        while(len(index_list16) <= 100 and v < max_varience):
-            index_list16 = self.find_similar(downscaled16, self.data_set_16, index_list8, v, 0)
-            v += variance_interval
-            print(f"v = {v}")
-
-        if (len(index_list16)==0):
-            print("no match 16x16")
-            return_value = index_list8[random.randint(0, len(index_list8)-1)]
-            self.canvas_np_img_to_png(self.data_set[return_value,0,:], "similar_img.png")
-            return
-        
-        print("\n---------------- 32x32 ---------------")
-        v = start_varience
-
-        while(len(index_list32) <= 30 and v < max_varience):
-            index_list32 = self.find_similar(downscaled32, self.data_set_32, index_list16, v, 0)
-            v += variance_interval
-            print(f"v = {v}")
-
-        if (len(index_list32)==0):
-            print("no match 32x32")
-            return_value = index_list16[random.randint(0, len(index_list16)-1)]
-            self.canvas_np_img_to_png(self.data_set[return_value,0,:], "similar_img.png")
-            return
-        
-        print("\n---------------- 64x64 ---------------")
-        v = start_varience
-
-        while(len(index_list64) <= 10 and v < max_varience):
-            index_list64 = self.find_similar(downscaled64, self.data_set_64, index_list32, v, 0)
-            v += variance_interval
-            print(f"v = {v}")
-
-        if (len(index_list64)==0):
-            print("no match 64x64")
-            return_value = index_list32[random.randint(0, len(index_list32)-1)]
-            self.canvas_np_img_to_png(self.data_set[return_value,0,:], "similar_img.png")
-            return
-        
-        print("\n---------------- 126x128 ---------------")
-        v = start_varience
-
-        while(len(index_list128) <= 5 and v < max_varience):
-            index_list128 = self.find_similar(input_image, self.data_set, index_list64, v, 0)
-            v += variance_interval
-            print(f"v = {v}")
-
-        if (len(index_list128) == 0):
-            print("no match 128x128")
-            return_value = index_list64[random.randint(0, len(index_list64) -1)]
-            self.canvas_np_img_to_png(self.data_set[return_value,0,:], "similar_img.png")
-            return
-        
-        return_value = index_list128[random.randint(0, len(index_list128)-1)]
-        self.canvas_np_img_to_png(self.data_set[return_value,0,:], "similar_img.png")
-        return return_value
-
-    def find_similar(self, input_img, data_set, img_index_list = None, variance_upper_bound = 1, varience_lower_bond = 0, drop_percent = .05):
-        lowest = 100
-        new_index_list = []
-        new_index_list.clear()
-
-        if(img_index_list == None):
-            for i in range(data_set.shape[0]):
-                sum_of_dif = 0
-                for j in range(input_img.shape[0]):
-                    dif_squared = (input_img[j] - data_set[i,0,j])**2
-                    sum_of_dif += dif_squared
-                varience = sum_of_dif / (input_img.shape[0] - 1) 
-                if (varience < lowest):
-                        lowest = varience
-                if(varience < variance_upper_bound and varience > varience_lower_bond):
-                    new_index_list.append(i)
-            print(f"Lowest Variance in 4x4 similiarity is {lowest}")
-            print(f"List size after 4x4 run is {len(new_index_list)}")
-            print(new_index_list)
-        else:
-            for i in range(len(img_index_list)):
-                sum_of_dif = 0 
-                for j in range(input_img.shape[0]):
-                    dif_squared = (input_img[j] - data_set[img_index_list[i],0,j])**2 
-                    sum_of_dif += dif_squared
-                varience = sum_of_dif / (input_img.shape[0] - 1) 
-                if (varience < lowest):
-                        lowest = varience
-                if(varience < variance_upper_bound and varience > varience_lower_bond):
-                    new_index_list.append(img_index_list[i])
-            print(f"Lowest Variance in similiarity is {lowest}")
-            print(f"List size after run is {len(new_index_list)}")
-            print(new_index_list)
-
-        new_index_list = self.drop_ran_from_list(drop_percent, new_index_list)
-        return new_index_list
-
+        index_list = []
+        lowest_varience = 1000000
+        best_index = -1
+        for index, data in enumerate(self.data_set):
+            element = data[0, :]
+            diff_array = np.abs(input_image - element)
+            diff = np.sum(diff_array)
+            if diff < lowest_varience:
+                lowest_varience = diff
+                best_index = index
+            if diff < lowest_varience + 500:
+                print(diff)
+                index_list.append(index)
+        print(lowest_varience)
+        print(index_list)
+        print(best_index)
+        self.canvas_np_img_to_png(self.data_set[best_index,0,:], "similar_img.png")
+        best_associated_stroke = self.data_set[best_index, 1, :]
+        print(best_associated_stroke.shape)
+        return best_associated_stroke
 
     def drop_ran_from_list(self, percentage, input_list):
         list_size = len(input_list)

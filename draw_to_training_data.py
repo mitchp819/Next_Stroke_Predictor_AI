@@ -75,13 +75,26 @@ class DrawingApp:
 
 
     def process_image(self):
-        input_img = self.np_main_canvas_data.flatten() / 255
-        np.append(input_img, .5)
-        print(input_img)
+        img_flat = self.np_main_canvas_data.flatten() / 255
+        filler =  np.array([.5])
+        input_img = np.concatenate((img_flat, filler))
+        print(f"input image = {input_img}")
         print(f"Process Image of shape {input_img.shape}")
         Image.fromarray(self.np_main_canvas_data.astype('uint8'), 'L').save("input_canvas.png")
-        output = self.img_process.compare_img_with_dataset(input_img)
-        print(f"\n \n output image index = {output}")
+        output_stroke = self.img_process.compare_img_with_dataset(input_img)
+        color_value = int(output_stroke[-1] * 255)
+        print(color_value)
+        color = color_value_to_hex(color_value)
+        stroke_img = output_stroke[:-1]
+        stroke_img = shape_img(stroke_img)
+        print(stroke_img.shape)
+
+        for row, column_array  in enumerate(stroke_img):
+            for col, pixel_value in enumerate(column_array):
+                if pixel_value < 1:
+                    print(f"{row},{col}")
+                    self.canvas.create_rectangle(row * self.image_scalor, col * self.image_scalor, (row+1) * self.image_scalor , (col+1) * self.image_scalor , outline = color, fill=color)
+
         pass
 
 
@@ -193,6 +206,13 @@ class DrawingApp:
     
 def color_value_to_hex (value):
     return f"#{value:02x}{value:02x}{value:02x}"
+
+def shape_img (image):
+        side_length = int(np.sqrt(image.shape[0]))
+        #print(f"shape_img:   side_length = {side_length}")
+        shaped_image = np.reshape(image, (side_length, side_length))
+        #print(f"image reshaped. Shape = {shaped_image.shape}")
+        return shaped_image
 
 
 root = tk.Tk()
