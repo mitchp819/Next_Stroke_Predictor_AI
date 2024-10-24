@@ -60,41 +60,54 @@ class DrawingApp:
         save_button = tk.Button(root, text="Save Image", command = self.save_data)
         save_button.pack() 
 
-        #emotion drop down
-        #self.emotion = tk.StringVar(root)
-        #self.emotion.set("No Emotion Selected")
-        #self.dropdown = tk.OptionMenu(root, self.emotion, "No Emotion Selected", "Option 2", "Option 3")
-        #self.dropdown.pack(pady=20)
 
         #proccesss_image_button
         self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", '64x64_dataset.npy', "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
         process_image_button = tk.Button(root, text = "Process Image", command = self.process_image )
-        process_image_button.pack()
+        process_image_button.pack(pady=(100,0))
+
+        #Tolerance 
+        self.tolerance = tk.IntVar()
+        self.tolerance.set(500)
+        self.tolerance_slider = tk.Scale(self.master, from_=1, to=1000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
+        self.tolerance_slider.pack()
+        
+        #Similarity Quality Label
+        label = tk.Label(root, text = "hello world")
+        label.pack()
         pass
 
 
 
     def process_image(self):
+        #sets the tolerance in image_processing [How close data must be from the best variance]
+        self.img_process.set_tolerance(self.tolerance)
+
+        #get current canvas to send to image_processing script
         img_flat = self.np_main_canvas_data.flatten() / 255
         filler =  np.array([.5])
         input_img = np.concatenate((img_flat, filler))
-        print(f"input image = {input_img}")
-        print(f"Process Image of shape {input_img.shape}")
         Image.fromarray(self.np_main_canvas_data.astype('uint8'), 'L').save("input_canvas.png")
+
+        #call image_processing script
         output_stroke = self.img_process.compare_img_with_dataset(input_img)
+
+        #get Color from output and shape
         color_value = int(output_stroke[-1] * 255)
-        print(color_value)
         color = color_value_to_hex(color_value)
         stroke_img = output_stroke[:-1]
         stroke_img = shape_img(stroke_img)
-        print(stroke_img.shape)
+        
+        #get the associated varience from image_process and update the label
 
         for row, column_array  in enumerate(stroke_img):
             for col, pixel_value in enumerate(column_array):
                 if pixel_value < 1:
-                    print(f"{row},{col}")
+                    #print(f"{row},{col}")
                     self.canvas.create_rectangle(row * self.image_scalor, col * self.image_scalor, (row+1) * self.image_scalor , (col+1) * self.image_scalor , outline = color, fill=color)
 
+        #update np canvas data
+        #do this real gud some how !!!! its the self.np_main_canavas_data
         pass
 
 
