@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-#np.set_printoptions(threshold=sys.maxsize)
 from PIL import Image
 import random
 
@@ -32,6 +30,8 @@ class img_processer:
         self.best_image_index = -1
         self.tolerance = 500
         self.previous_matchs = []
+        self.prev_match_range = 10
+        self.prev_matchs_list_size = 100
         
         
     def get_variance(self):
@@ -56,23 +56,66 @@ class img_processer:
     
     
     def compare_img_with_dataset(self, input_image):
+
+        #reset variables
+        temp_index_list = []
         index_list = []
-        lowest_varience = 1000000
-        best_index = -1
+        temp_index_list.clear()
+        index_list.clear()
+        lowest_varience = 10000000000
+        
+
+        #enumerate dataset
         for index, data in enumerate(self.data_set):
-            element = data[0, :]
-            diff_array = np.abs(input_image - element)
-            diff = np.sum(diff_array)
-            if diff < lowest_varience:
-                lowest_varience = diff
-                best_index = index
-                print(f"Difference = {diff}")
-            if diff < lowest_varience + self.tolerance:
-                index_list.append(index)
-        #print(lowest_varience)
-        #print(index_list)
-        print(best_index)
-        self.canvas_np_img_to_png(self.data_set[best_index,0,:], "similar_img.png")
-        best_associated_stroke = self.data_set[best_index, 1, :]
-        #print(best_associated_stroke.shape)
+            skip_data = False
+
+            #check if element is a previous match
+            for old_match in self.previous_matchs:
+                for x in range(self.prev_match_range):
+                    if index == old_match + x:
+                        print(f"Skipping element {index}. Index allready used recently")
+                        skip_data = True
+                    if index == old_match - x:
+                        print(f"Skipping element {index}. Index allready used recently")
+                        skip_data = True
+            
+            if skip_data == False: 
+                #finds variance
+                element = data[0, :]
+                diff_array = np.abs(input_image - element)
+                diff = np.sum(diff_array)
+                skip_data = False
+
+                if diff < lowest_varience:
+                    lowest_varience = diff
+                    print(f"New Best Element Found: Index {index} Difference = {diff}")
+                if diff <= lowest_varience + self.tolerance:
+                    temp_index_list.append((index, diff))
+
+        #iterate through temp list and add elements less than tolerance to index_list
+        max_variance = lowest_varience + self.tolerance
+        for maybe_img, maybe_variance in temp_index_list:
+            print(f"img index {maybe_img}, variance {maybe_variance}")
+            if maybe_variance <= max_variance:
+                index_list.append((maybe_img, maybe_variance))
+        
+        #Error Check
+        if (len(index_list) == 0): 
+            print("No Match Found")
+            return -1
+        
+        #pick random image from list
+        output_index, self.output_variance = random.choice(index_list)
+        print(f"Output index = {output_index}, Output Variance = {self.output_variance}")
+
+        #add output to previous matches and remove element if to long
+        self.previous_matchs.append(output_index)
+        if len(self.previous_matchs) > self.prev_matchs_list_size : 
+            self.previous_matchs = self.previous_matchs[1:]
+
+        print(f"len of prev matches = {len(self.previous_matchs)}")
+
+        self.canvas_np_img_to_png(self.data_set[output_index,0,:], "similar_img.png")
+        self.canvas_np_img_to_png(self.data_set[output_index,1,:], "similar_stroke.png")
+        best_associated_stroke = self.data_set[output_index, 1, :]
         return best_associated_stroke

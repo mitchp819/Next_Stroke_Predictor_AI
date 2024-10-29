@@ -10,5 +10,5 @@ for f in files:
     arrays.append(np.load(f))
 
 result = np.concatenate(arrays,axis=0)
-print(result.shape)
+print(f"Data concatenated into np array shape = {result.shape}")
 np.save(f'NPY_AllImageData{result.shape[2]}.npy', result)

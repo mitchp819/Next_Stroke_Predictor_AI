@@ -121,9 +121,19 @@ class img_processer:
         downscaled8 = self.downscale_img(downscaled16)
         downscaled4 = self.downscale_img(downscaled8)
         print(f"dataset 4 shape = {self.data_set_4.shape}")
+
+
+        start_varience = .01
+        variance_interval = .01
+        max_varience = .5
         
         print("\n---------------- 4x4 ---------------")
-        index_list4 = self.find_similar(downscaled4, self.data_set_4, None, .1, .00001)
+        v = start_varience
+
+        while(len(index_list4) <= 200 and v < max_varience):
+            index_list4 = self.find_similar(downscaled4, self.data_set_4, None, v, .00001)
+            v += variance_interval
+            print(f"v = {v}")
         if (len(index_list4)==0):
             print("no match 4x4")
             #some sort of error
@@ -131,7 +141,13 @@ class img_processer:
             return -1
         
         print("\n---------------- 8x8 ---------------")
-        index_list8 = self.find_similar(downscaled8, self.data_set_8, index_list4, .15, 0) 
+        v = start_varience
+
+        while(len(index_list8) <= 180 and v < max_varience):
+            index_list8 = self.find_similar(downscaled8, self.data_set_8, index_list4, v, 0) 
+            v += variance_interval
+            print(f"v = {v}")
+
         if (len(index_list8)==0):
             print("no match 8x8")
             return_value = index_list4[random.randint(0, len(index_list4)-1)]
@@ -139,7 +155,13 @@ class img_processer:
             return
         
         print("\n---------------- 16x16 ---------------")
-        index_list16 = self.find_similar(downscaled16, self.data_set_16, index_list8, .2, 0)
+        v = start_varience
+
+        while(len(index_list16) <= 100 and v < max_varience):
+            index_list16 = self.find_similar(downscaled16, self.data_set_16, index_list8, v, 0)
+            v += variance_interval
+            print(f"v = {v}")
+
         if (len(index_list16)==0):
             print("no match 16x16")
             return_value = index_list8[random.randint(0, len(index_list8)-1)]
@@ -147,7 +169,13 @@ class img_processer:
             return
         
         print("\n---------------- 32x32 ---------------")
-        index_list32 = self.find_similar(downscaled32, self.data_set_32, index_list16, .2, 0)
+        v = start_varience
+
+        while(len(index_list32) <= 30 and v < max_varience):
+            index_list32 = self.find_similar(downscaled32, self.data_set_32, index_list16, v, 0)
+            v += variance_interval
+            print(f"v = {v}")
+
         if (len(index_list32)==0):
             print("no match 32x32")
             return_value = index_list16[random.randint(0, len(index_list16)-1)]
@@ -155,7 +183,13 @@ class img_processer:
             return
         
         print("\n---------------- 64x64 ---------------")
-        index_list64 = self.find_similar(downscaled64, self.data_set_64, index_list32, .25, 0)
+        v = start_varience
+
+        while(len(index_list64) <= 10 and v < max_varience):
+            index_list64 = self.find_similar(downscaled64, self.data_set_64, index_list32, v, 0)
+            v += variance_interval
+            print(f"v = {v}")
+
         if (len(index_list64)==0):
             print("no match 64x64")
             return_value = index_list32[random.randint(0, len(index_list32)-1)]
@@ -163,7 +197,13 @@ class img_processer:
             return
         
         print("\n---------------- 126x128 ---------------")
-        index_list128 = self.find_similar(input_image, self.data_set, index_list64, .3, 0)
+        v = start_varience
+
+        while(len(index_list128) <= 5 and v < max_varience):
+            index_list128 = self.find_similar(input_image, self.data_set, index_list64, v, 0)
+            v += variance_interval
+            print(f"v = {v}")
+
         if (len(index_list128) == 0):
             print("no match 128x128")
             return_value = index_list64[random.randint(0, len(index_list64) -1)]

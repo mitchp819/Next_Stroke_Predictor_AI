@@ -3,11 +3,15 @@ import numpy as np
 import os
 import re
 import image_processing
+import concatenate_data
+import time
 from PIL import Image, ImageDraw
+
 
 class DrawingApp:
     def __init__(self, master):
         self.master = master 
+        #concatenate_data
         
         #set image and windom size
         self.imageHeight = 128
@@ -63,25 +67,44 @@ class DrawingApp:
 
         #proccesss_image_button
         self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", '64x64_dataset.npy', "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
+        
+        #Send to img_process Script
         process_image_button = tk.Button(root, text = "Process Image", command = self.process_image )
         process_image_button.pack(pady=(100,0))
+        process_image_button_10x = tk.Button(root, text = "Process Image 10x", command = self.process_image_10x )
+        process_image_button_10x.pack()
 
         #Tolerance 
         self.tolerance = tk.IntVar()
         self.tolerance.set(500)
-        self.tolerance_slider = tk.Scale(self.master, from_=1, to=1000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
+        self.tolerance_slider = tk.Scale(self.master, from_=1, to=2000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
         self.tolerance_slider.pack()
         
         #Similarity Quality Label
-        label = tk.Label(root, text = "hello world")
-        label.pack()
+        self.label_variance = "Similarity Qualtiy = n/a"
+        self.variance_label = tk.Label(root, text = self.label_variance)
+        self.variance_label.pack()
+
+        #Display similar image 
+        similar_image_frame = tk.Frame(root)
+        similar_image_frame.pack(side = tk.LEFT, padx= 10)
+        similar_image_title = tk.Label(similar_image_frame, text = "Similar Image")
+        similar_image_title.pack(side = tk.TOP)
+        self.similar_image_canvas = tk.Canvas(similar_image_frame, width = self.imageWidth, height = self.imageHeight, bg = 'white')
+        self.similar_image_canvas.pack()
+        self.similar_stroke_canvas = tk.Canvas(similar_image_frame, width = self.imageWidth, height = self.imageHeight, bg = 'white')
+        self.similar_stroke_canvas.pack()
         pass
 
-
+    def process_image_10x(self):
+        for x in range(10):
+            self.process_image()
+            time.sleep(.2)
 
     def process_image(self):
+        print("\n\n --------------------- Processing Image ----------------------")
         #sets the tolerance in image_processing [How close data must be from the best variance]
-        self.img_process.set_tolerance(self.tolerance)
+        self.img_process.set_tolerance(self.tolerance.get())
 
         #get current canvas to send to image_processing script
         img_flat = self.np_main_canvas_data.flatten() / 255
@@ -92,6 +115,9 @@ class DrawingApp:
         #call image_processing script
         output_stroke = self.img_process.compare_img_with_dataset(input_img)
 
+        if not isinstance(output_stroke, np.ndarray): 
+            return
+
         #get Color from output and shape
         color_value = int(output_stroke[-1] * 255)
         color = color_value_to_hex(color_value)
@@ -99,17 +125,27 @@ class DrawingApp:
         stroke_img = shape_img(stroke_img)
         
         #get the associated varience from image_process and update the label
+        self.this_variance ="{:.0f}".format(self.img_process.get_variance())
+        self.variance_label.config(text= "Similarity Quality = " + self.this_variance)
+        self.variance_label.pack()
 
         for row, column_array  in enumerate(stroke_img):
             for col, pixel_value in enumerate(column_array):
                 if pixel_value < 1:
                     #print(f"{row},{col}")
-                    self.canvas.create_rectangle(row * self.image_scalor, col * self.image_scalor, (row+1) * self.image_scalor , (col+1) * self.image_scalor , outline = color, fill=color)
-
-        #update np canvas data
-        #do this real gud some how !!!! its the self.np_main_canavas_data
+                    self.canvas.create_rectangle(col * self.image_scalor, row * self.image_scalor, (col+1) * self.image_scalor , (row+1) * self.image_scalor , outline = color, fill=color)
+                    self.np_main_canvas_data[row,col] = color_value
+        
+        self.load_canvas_with_image(self.similar_image_canvas, 'similar_img.png')
+        self.load_canvas_with_image(self.similar_stroke_canvas, 'similar_stroke.png')
         pass
+    
 
+    def load_canvas_with_image(self, canvas, image_path, x=0, y=0):
+        image = tk.PhotoImage(file = image_path)
+        canvas.create_image(x,y, anchor=tk.NW, image = image)
+        canvas.image = image
+        pass
 
 
     def on_mouse_down(self, event):
