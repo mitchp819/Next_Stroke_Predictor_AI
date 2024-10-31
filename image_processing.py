@@ -39,6 +39,9 @@ class img_processer:
         
     def set_tolerance(self, t):
         self.tolerance = t
+    
+    def set_data_set(self, ds):
+        self.data_set = np.load(ds)
 
     def canvas_np_img_to_png(self, canvas_data, save_name):
         '''Turns a np array with values 0-1 and a extranious last element into a png image.'''

@@ -3,15 +3,15 @@ import numpy as np
 import os
 import re
 import image_processing
-import concatenate_data
+import glob
 import time
 from PIL import Image, ImageDraw
+
 
 
 class DrawingApp:
     def __init__(self, master):
         self.master = master 
-        #concatenate_data
         
         #set image and windom size
         self.imageHeight = 128
@@ -22,7 +22,7 @@ class DrawingApp:
 
         #build canvas
         self.canvas = tk.Canvas(self.master, width= self.winWidth, height= self.winHeight, bg="white")
-        self.canvas.pack(side = tk.RIGHT)
+        
 
         #store image x image data in np array
         self.np_main_canvas_data = np.ones((self.imageWidth, self.imageHeight), dtype= np.uint8) * 255
@@ -51,49 +51,97 @@ class DrawingApp:
         self.compiled_data = None
         self.stroke_count = 0
         
-        #brush size slider
+        title = tk.Label(root, text = "Next Brush Stroke Predictor", font=("Helvetica", 24))
+        title.pack(pady= 20)
+
+        #UI frame 
+        UI_frame = tk.Frame(root)
+        UI_frame_label = tk.Label(UI_frame, text = "Drawing Tools", font=("Helvetica", 12))
+        UI_frame_label.pack()
+
+        #brush size slider + color
         self.brush_size = tk.IntVar()
         self.brush_size.set(1)
-        self.brush_slider = tk.Scale(self.master, from_=1, to=50, orient = "horizontal", variable = self.brush_size, label="Brush Size")
+        self.brush_slider = tk.Scale(UI_frame, from_=1, to=50, orient = "horizontal", variable = self.brush_size, label="Brush Size", command= self.on_color_size_slide_change)
+        
+        self.color_scale = tk.Scale(UI_frame, from_=0, to=255, orient="horizontal", label="Color Scale", command= self.on_color_size_slide_change)
+        
+        brush_color_side_length = self.brush_slider.get() * self.image_scalor
+        self.brush_color_sample = tk.Canvas(UI_frame, width= brush_color_side_length , height = brush_color_side_length, bg="black")
+
+        self.brush_color_sample.pack()
         self.brush_slider.pack()
-
-        self.color_scale = tk.Scale(self.master, from_=0, to=255, orient="horizontal", label="Color Scale")
         self.color_scale.pack()
-
-        #save button
-        save_button = tk.Button(root, text="Save Image", command = self.save_data)
-        save_button.pack() 
 
 
         #proccesss_image_button
         self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", '64x64_dataset.npy', "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
         
         #Send to img_process Script
-        process_image_button = tk.Button(root, text = "Process Image", command = self.process_image )
-        process_image_button.pack(pady=(100,0))
-        process_image_button_10x = tk.Button(root, text = "Process Image 10x", command = self.process_image_10x )
+        process_image_button = tk.Button(UI_frame, text = "Process Image", command = self.process_image )
+        process_image_button.pack(pady=(50,0))
+        process_image_button_10x = tk.Button(UI_frame, text = "Process Image 10x", command = self.process_image_10x )
         process_image_button_10x.pack()
 
         #Tolerance 
         self.tolerance = tk.IntVar()
         self.tolerance.set(500)
-        self.tolerance_slider = tk.Scale(self.master, from_=1, to=2000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
-        self.tolerance_slider.pack()
+        self.tolerance_slider = tk.Scale(UI_frame, from_=1, to=2000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
+        self.tolerance_slider.pack(padx=20)
         
         #Similarity Quality Label
         self.label_variance = "Similarity Qualtiy = n/a"
-        self.variance_label = tk.Label(root, text = self.label_variance)
+        self.variance_label = tk.Label(UI_frame, text = self.label_variance)
         self.variance_label.pack()
 
         #Display similar image 
         similar_image_frame = tk.Frame(root)
-        similar_image_frame.pack(side = tk.LEFT, padx= 10)
+        
         similar_image_title = tk.Label(similar_image_frame, text = "Similar Image")
         similar_image_title.pack(side = tk.TOP)
         self.similar_image_canvas = tk.Canvas(similar_image_frame, width = self.imageWidth, height = self.imageHeight, bg = 'white')
         self.similar_image_canvas.pack()
         self.similar_stroke_canvas = tk.Canvas(similar_image_frame, width = self.imageWidth, height = self.imageHeight, bg = 'white')
         self.similar_stroke_canvas.pack()
+
+        #Data Tools 
+        data_tool_frame = tk.Frame(root)
+
+        save_button = tk.Button(data_tool_frame, text="Save Data", command = self.save_data, font=("Helvetica", 18))
+        save_button.pack(pady=50) 
+
+        cat_data_button = tk.Button(data_tool_frame, text="Compile Data", command = self.cat_data , font=("Helvetica", 10))
+        cat_data_button.pack() 
+
+        
+
+        #Pack Order
+        UI_frame.pack(side = tk.LEFT, padx= 50)
+        self.canvas.pack(side = tk.LEFT, padx= 50, pady = 10, expand=True)
+        similar_image_frame.pack(side = tk.LEFT, padx= 50)
+        data_tool_frame.pack(side = tk.LEFT, padx= 50)
+        pass
+
+    def cat_data(self):
+        path = os.path.join(os.path.dirname(__file__), 'ImageData16384/*.npy')
+        files = sorted(glob.glob(path))
+        arrays = []
+
+        for f in files:
+            arrays.append(np.load(f))
+
+        result = np.concatenate(arrays,axis=0)
+        np.save(f'NPY_AllImageData{result.shape[2]}.npy', result)
+        print(f"Data concatenated into np array shape = {result.shape}")
+        self.img_process.set_data_set("NPY_AllImageData16385.npy")
+        print("Data Loaded")
+        pass
+
+    def on_color_size_slide_change(self, input):
+        color_value = self.color_scale.get()
+        color = color_value_to_hex(color_value)
+        brush_color_side_length = self.brush_slider.get() + self.image_scalor
+        self.brush_color_sample.config(width=brush_color_side_length, height=brush_color_side_length, bg = color)
         pass
 
     def process_image_10x(self):
