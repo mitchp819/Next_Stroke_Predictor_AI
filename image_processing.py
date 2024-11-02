@@ -31,7 +31,7 @@ class img_processer:
         self.tolerance = 500
         self.previous_matchs = []
         self.prev_match_range = 10
-        self.prev_matchs_list_size = 100
+        self.prev_matchs_list_size = 50
         
         
     def get_variance(self):
