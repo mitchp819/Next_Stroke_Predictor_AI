@@ -30,8 +30,8 @@ class img_processer:
         self.best_image_index = -1
         self.tolerance = 500
         self.previous_matchs = []
-        self.prev_match_range = 10
-        self.prev_matchs_list_size = 50
+        self.prev_match_range = 1
+        self.prev_matchs_list_size = 100
         
         
     def get_variance(self):
@@ -76,10 +76,10 @@ class img_processer:
             for old_match in self.previous_matchs:
                 for x in range(self.prev_match_range):
                     if index == old_match + x:
-                        print(f"Skipping element {index}. Index allready used recently")
+                        #print(f"Skipping element {index}. Index allready used recently")
                         skip_data = True
                     if index == old_match - x:
-                        print(f"Skipping element {index}. Index allready used recently")
+                        #print(f"Skipping element {index}. Index allready used recently")
                         skip_data = True
             
             if skip_data == False: 
@@ -91,14 +91,14 @@ class img_processer:
 
                 if diff < lowest_varience:
                     lowest_varience = diff
-                    print(f"New Best Element Found: Index {index} Difference = {diff}")
+                    #print(f"New Best Element Found: Index {index} Difference = {diff}")
                 if diff <= lowest_varience + self.tolerance:
                     temp_index_list.append((index, diff))
 
         #iterate through temp list and add elements less than tolerance to index_list
         max_variance = lowest_varience + self.tolerance
         for maybe_img, maybe_variance in temp_index_list:
-            print(f"img index {maybe_img}, variance {maybe_variance}")
+            #print(f"img index {maybe_img}, variance {maybe_variance}")
             if maybe_variance <= max_variance:
                 index_list.append((maybe_img, maybe_variance))
         

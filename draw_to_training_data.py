@@ -85,8 +85,8 @@ class DrawingApp:
 
         #Tolerance 
         self.tolerance = tk.IntVar()
-        self.tolerance.set(500)
-        self.tolerance_slider = tk.Scale(UI_frame, from_=1, to=2000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
+        self.tolerance.set(50)
+        self.tolerance_slider = tk.Scale(UI_frame, from_=1, to=1000, orient="horizontal", variable= self.tolerance, label = "Tolerance")
         self.tolerance_slider.pack(padx=20)
         
         #Similarity Quality Label
@@ -147,7 +147,8 @@ class DrawingApp:
     def process_image_10x(self):
         for x in range(10):
             self.process_image()
-            time.sleep(.2)
+            print(x)
+        print("--------------------------Continue Drawing-----------------------------")
 
     def process_image(self):
         print("\n\n --------------------- Processing Image ----------------------")
@@ -193,6 +194,7 @@ class DrawingApp:
         image = tk.PhotoImage(file = image_path)
         canvas.create_image(x,y, anchor=tk.NW, image = image)
         canvas.image = image
+        canvas.update()
         pass
 
 
