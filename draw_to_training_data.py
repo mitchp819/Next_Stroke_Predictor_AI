@@ -2,7 +2,7 @@ import tkinter as tk
 import numpy as np
 import os
 import re
-import image_processing
+import img_processor2 as image_processing
 import glob
 import time
 from PIL import Image, ImageDraw
@@ -162,6 +162,7 @@ class DrawingApp:
         Image.fromarray(self.np_main_canvas_data.astype('uint8'), 'L').save("input_canvas.png")
 
         #call image_processing script
+        self.img_process.compare_img_with_downscaled_data_set(input_img)
         output_stroke = self.img_process.compare_img_with_dataset(input_img)
 
         if not isinstance(output_stroke, np.ndarray): 
