@@ -3,6 +3,7 @@ import helper_functions as hf
 
 
 def downscale_dataset (data_set):
+    print("------------------Downscaling Data Set. This Could Take A while -----------------------")
     data_set_size = data_set.shape[0]
     side_length = int(np.sqrt(data_set.shape[2] - 1))
     new_shape = (data_set.shape[0], data_set.shape[1], (side_length//2)**2 + 1)
@@ -13,7 +14,7 @@ def downscale_dataset (data_set):
         stroke_img = data_set[i,1,:]
         downscaled_dataset[i,0,:] = downscale_img(canvas_img)
         downscaled_dataset[i,1,:] = downscale_img(stroke_img)
-        #print(f"{i}/{data_set_size}")
+        print(f"{i}/{data_set_size}")
     return downscaled_dataset
 
 
@@ -38,6 +39,7 @@ def downscale_to_all_scales_and_save(data_set):
     np.save('4x4_dataset.npy',downscaled_dataset5)
     print(f"Scaled to 4x4 {downscaled_dataset5.shape} -------------------------------------------------------------############")
 
+    print("FINISHED\nData set downscaled to all downscales")
 
 
 def downscale_img(image):
@@ -57,4 +59,6 @@ def downscale_img(image):
     flat_downscaled_img = np.append(flat_downscaled_img, color_value)
     #print(f"downscaled shape = {downscaled_img.shape} \nFlattened and color value appended {flat_downscaled_img.shape}")
     return flat_downscaled_img
-    
+
+data_set = np.load('NPY_AllImageData16385.npy')
+downscale_to_all_scales_and_save(data_set)

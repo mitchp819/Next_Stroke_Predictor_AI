@@ -49,13 +49,12 @@ class img_processer:
             self.dataset_error_check(self.data_set, self.data_set_4)
         else:
             self.downscaled_data.append(-1)
-
         
-        self.downscaled_data_length = len(self.downscaled_data)
+        self.downscaled_data_depth = len(self.downscaled_data)
         self.lowest_varience = 100
         self.output_variance = -1
         self.best_image_index = -1
-        self.tolerance = 500
+        self.tolerance = .5
         self.previous_matchs = []
         self.prev_match_range = 1
         self.prev_matchs_list_size = 100
@@ -63,10 +62,10 @@ class img_processer:
         
         
     def get_variance(self):
-        return self.output_variance
+        return self.output_variance * 1000
         
     def set_tolerance(self, t):
-        self.tolerance = t
+        self.tolerance = t*.0001 - .0001
         pass
     
     def set_data_set(self, ds):
@@ -86,7 +85,6 @@ class img_processer:
         
 
     def compare_img_with_downscaled_data_set(self, input_image):
-
         input_img_ds1 = ds.downscale_img(input_image)
         input_img_ds2 = ds.downscale_img(input_img_ds1)
         input_img_ds3 = ds.downscale_img(input_img_ds2)
@@ -94,56 +92,64 @@ class img_processer:
         input_img_ds5 = ds.downscale_img(input_img_ds4)
         input_ds_list = [input_image, input_img_ds1, input_img_ds2, input_img_ds3, input_img_ds4, input_img_ds5]
 
-        if len(input_ds_list) != self.downscaled_data_length:
-            print(f"\nError: img_process    compare_img_with_downscaled_data_set() \n input downscaled to a diffrent depth as dataset\n input depth = {len(input_ds_list)} \n dataset depth = {self.downscaled_data_length}")
-
-        pass
-        
-    def compare_img_with_dataset(self, input_image):
-        #reset variables
+        index_list = [(i, 10) for i in range(self.max_index)]
         temp_index_list = []
-        index_list = []
-        temp_index_list.clear()
-        index_list.clear()
-        lowest_varience = 10000000000
+        first_run = True
         
-        #enumerate dataset
-        for index, data in enumerate(self.data_set):
-            skip_data = prev_match_check(index, self.previous_matchs,  self.prev_match_range)
-            if skip_data == False: 
-                diff = compare_two_images(input_image, data[0, :])
-                if diff < lowest_varience:
-                    lowest_varience = diff
-                if diff <= lowest_varience + self.tolerance:
-                    temp_index_list.append((index, diff))
+        if len(input_ds_list) != self.downscaled_data_depth:
+            print(f"\nError: img_process    compare_img_with_downscaled_data_set() \n input downscaled to a diffrent depth as dataset\n input depth = {len(input_ds_list)} \n dataset depth = {self.downscaled_data_depth}")
 
-        #iterate through temp list and add elements less than tolerance to index_list
-        max_variance = lowest_varience + self.tolerance
-        index_list = trim_data_set(temp_index_list, max_variance)
+        #Enumerate each downscaled depth 
 
-        #Error Check
-        if (len(index_list) == 0): 
-            print("No Match Found")
-            return -1
+        for ds_level in range(self.downscaled_data_depth - 1, -1, -1):
+            input_img_scaled = input_ds_list[ds_level]
+            dataset_ds_level = self.downscaled_data[ds_level]
+            temp_index_list.clear()
+
+            print(f"\nFinding Matches at downscaled depth = {ds_level}. Iterating over index list of length {len(index_list)}")
+            print(f"Dataset Shape = {dataset_ds_level.shape}")
+            print(f"Input IMG shape = {input_img_scaled.shape}")
+
+            index_list = self.compare_input_to_dataset(index_list, dataset_ds_level, input_img_scaled, first_run)
+            first_run = False
         
-        #pick random image from list
-        output_index, self.output_variance = random.choice(index_list)
-        print(f"Output index = {output_index}, Output Variance = {self.output_variance}")
+        print(f"\n\nFinal Input List Size = {len(index_list)}. ")
+        output_index = self.best_image_index
 
-        #add output to previous matches and remove element if to long
         self.previous_matchs.append(output_index)
         if len(self.previous_matchs) > self.prev_matchs_list_size : 
             self.previous_matchs = self.previous_matchs[1:]
 
         hf.canvas_np_img_to_png(self.data_set[output_index,0,:], "similar_img.png")
         hf.canvas_np_img_to_png(self.data_set[output_index,1,:], "similar_stroke.png")
-        best_associated_stroke = self.data_set[output_index, 1, :]
-
-        #this should set something in draw_to_training
-        return best_associated_stroke
-    
+        
+        return self.data_set[output_index, 1, :]
 
 
+
+    def compare_input_to_dataset(self, index_list, dataset, input_img, first_run):
+        lowest_variance = 1000000.0
+        best_index = 0
+        temp_index_list = []
+        for index, v in index_list:
+            skip_data = False
+            if first_run:
+                skip_data = prev_match_check(index, self.previous_matchs, self.prev_match_range)
+            if skip_data == False:
+                dataset_element = dataset[index, 0 , :]
+                variance = compare_two_images(input_img, dataset_element)
+                if variance < lowest_variance:
+                    lowest_variance = variance
+                    best_index = index
+                if variance <= lowest_variance + self.tolerance:
+                    temp_index_list.append((index, variance))
+        max_variance = lowest_variance + self.tolerance
+        print(f"TempList Length = {len(temp_index_list)}")
+        output_index_list = trim_data_set(temp_index_list, max_variance)
+        print(f"Lowest Variance = {lowest_variance}. Index = {best_index}")
+        self.best_image_index = best_index
+        self.output_variance = lowest_variance
+        return output_index_list
 
 
 def trim_data_set(input_list, max_variance):
