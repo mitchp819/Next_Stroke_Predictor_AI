@@ -12,7 +12,7 @@ class img_processer:
         self.downscaled_data  = []
         self.data_set = np.load(data_set_128_file)
         self.downscaled_data.append(self.data_set)
-        self.max_index = self.data_set[0]
+        self.max_index = self.data_set.shape[0]
         print(f"Data Set of shape {self.data_set.shape} Loaded")
 
         if data_set_64_file != None:
@@ -114,7 +114,9 @@ class img_processer:
             first_run = False
         
         print(f"\n\nFinal Input List Size = {len(index_list)}. ")
-        output_index = self.best_image_index
+        #output_index = self.best_image_index
+        output_index = random.choice(index_list)
+        output_index = output_index[0]
 
         self.previous_matchs.append(output_index)
         if len(self.previous_matchs) > self.prev_matchs_list_size : 
@@ -131,19 +133,21 @@ class img_processer:
         lowest_variance = 1000000.0
         best_index = 0
         temp_index_list = []
+        t = self.tolerance
         for index, v in index_list:
             skip_data = False
             if first_run:
                 skip_data = prev_match_check(index, self.previous_matchs, self.prev_match_range)
+                t *= 1.0005
             if skip_data == False:
                 dataset_element = dataset[index, 0 , :]
                 variance = compare_two_images(input_img, dataset_element)
                 if variance < lowest_variance:
                     lowest_variance = variance
                     best_index = index
-                if variance <= lowest_variance + self.tolerance:
+                if variance <= lowest_variance + t:
                     temp_index_list.append((index, variance))
-        max_variance = lowest_variance + self.tolerance
+        max_variance = lowest_variance + t
         print(f"TempList Length = {len(temp_index_list)}")
         output_index_list = trim_data_set(temp_index_list, max_variance)
         print(f"Lowest Variance = {lowest_variance}. Index = {best_index}")

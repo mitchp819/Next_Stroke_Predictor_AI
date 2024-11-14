@@ -7,7 +7,7 @@ import glob
 import time
 from PIL import Image, ImageDraw
 
-
+ 
 
 class DrawingApp:
     def __init__(self, master):

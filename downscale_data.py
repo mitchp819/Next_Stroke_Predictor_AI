@@ -3,7 +3,6 @@ import helper_functions as hf
 
 
 def downscale_dataset (data_set):
-    print("------------------Downscaling Data Set. This Could Take A while -----------------------")
     data_set_size = data_set.shape[0]
     side_length = int(np.sqrt(data_set.shape[2] - 1))
     new_shape = (data_set.shape[0], data_set.shape[1], (side_length//2)**2 + 1)
@@ -19,6 +18,7 @@ def downscale_dataset (data_set):
 
 
 def downscale_to_all_scales_and_save(data_set):
+    print("------------------Downscaling Data Set-----------------------\nThis Could Take A While depending on the size of your dataset and hardware")
     downscaled_dataset1 = downscale_dataset(data_set)
     np.save('64x64_dataset.npy',downscaled_dataset1)
     print(f"Scaled to 64x6 {downscaled_dataset1.shape} -------------------------------------------------------------############")
@@ -60,5 +60,5 @@ def downscale_img(image):
     #print(f"downscaled shape = {downscaled_img.shape} \nFlattened and color value appended {flat_downscaled_img.shape}")
     return flat_downscaled_img
 
-data_set = np.load('NPY_AllImageData16385.npy')
-downscale_to_all_scales_and_save(data_set)
+#data_set = np.load('NPY_AllImageData16385.npy')
+#downscale_to_all_scales_and_save(data_set)
