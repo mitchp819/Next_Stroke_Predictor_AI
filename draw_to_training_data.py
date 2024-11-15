@@ -2,12 +2,16 @@ import tkinter as tk
 import numpy as np
 import os
 import re
-import image_processor as image_processing
+import util.image_processor as image_processing
 import glob
 import time
 from PIL import Image, ImageDraw
-
- 
+try:
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(1)
+except ImportError:
+    print("Error: windll not imported. Text may be blurred")
+    pass
 
 class DrawingApp:
     def __init__(self, master):
@@ -29,7 +33,7 @@ class DrawingApp:
         self.np_stroke_canvas_data = np.ones((self.imageWidth, self.imageHeight), dtype= np.uint8) * 255
 
         #get the last file id 
-        dir_path = f'ImageData{self.imageHeight * self.imageWidth}'
+        dir_path = f'data/original-ds/ImageData{self.imageHeight * self.imageWidth}'
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         files_list = [f for f in os.listdir(dir_path) 
@@ -75,7 +79,7 @@ class DrawingApp:
 
 
         #proccesss_image_button
-        self.img_process = image_processing.img_processer("NPY_AllImageData16385.npy", '64x64_dataset.npy', "32x32_dataset.npy", "16x16_dataset.npy", "8x8_dataset.npy", "4x4_dataset.npy")
+        self.img_process = image_processing.img_processer("data/original-ds/NPY_AllImageData16385.npy", 'data/original-ds/64x64_dataset.npy', "data/original-ds/32x32_dataset.npy", "data/original-ds/16x16_dataset.npy", "data/original-ds/8x8_dataset.npy", "data/original-ds/4x4_dataset.npy")
         
         #Send to img_process Script
         process_image_button = tk.Button(UI_frame, text = "Process Image", command = self.process_image )
@@ -123,7 +127,7 @@ class DrawingApp:
         pass
 
     def cat_data(self):
-        path = os.path.join(os.path.dirname(__file__), 'ImageData16384/*.npy')
+        path = os.path.join(os.path.dirname(__file__), 'data/original-ds/ImageData16384/*.npy')
         files = sorted(glob.glob(path))
         arrays = []
 
@@ -131,9 +135,9 @@ class DrawingApp:
             arrays.append(np.load(f))
 
         result = np.concatenate(arrays,axis=0)
-        np.save(f'NPY_AllImageData{result.shape[2]}.npy', result)
+        np.save(f'data/original-ds/NPY_AllImageData{result.shape[2]}.npy', result)
         print(f"Data concatenated into np array shape = {result.shape}")
-        self.img_process.set_data_set("NPY_AllImageData16385.npy")
+        self.img_process.set_data_set("data/original-ds/NPY_AllImageData16385.npy")
         print("Data Loaded")
         pass
 
@@ -294,11 +298,11 @@ class DrawingApp:
         pil_main_img = Image.fromarray(self.np_main_canvas_data, mode="L")
 
         #save npy to folder
-        data_relative_path = f'ImageData{self.imageHeight * self.imageWidth}/image{self.file_count + 1}data.npy'
+        data_relative_path = f'data/original-ds/ImageData{self.imageHeight * self.imageWidth}/image{self.file_count + 1}data.npy'
         data_absolute_path = os.path.join(os.path.dirname(__file__), data_relative_path)
         np.save(data_absolute_path, self.compiled_data)
         #save png to folder
-        png_relative_path = f'FinalImagePNG{self.imageHeight * self.imageWidth}/image{self.file_count + 1}PNG.png'
+        png_relative_path = f'data/original-ds/FinalImagePNG{self.imageHeight * self.imageWidth}/image{self.file_count + 1}PNG.png'
         png_absolute_path = os.path.join(os.path.dirname(__file__), png_relative_path)
         pil_main_img.save(png_absolute_path)
         print("Image and Data Saved")
