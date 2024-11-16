@@ -1,0 +1,15 @@
+input_canvas.png
+similar_img.png
+similar_stroke.png
+/data/
+__pycache__/
+
+gui/__pycache__/drawing_canvas.cpython-311.pyc
+__pycache__/downscale_data.cpython-311.pyc
+__pycache__/drawing_canvas.cpython-311.pyc
+__pycache__/helper_functions.cpython-311.pyc
+gui/__pycache__/drawing_tool_kit.cpython-311.pyc
+__pycache__/image_processor.cpython-311.pyc
+util/__pycache__/downscale_data.cpython-311.pyc
+util/__pycache__/helper_functions.cpython-311.pyc
+util/__pycache__/image_processor.cpython-311.pyc

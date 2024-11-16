@@ -23,11 +23,13 @@ class DrawingToolKit(ttk.Frame):
         self.canvas_scalor = container.get_canvas_scalor()
         self.max_brush_size = 50
 
-        draw_tool_frame = self.create_draw_tool_frame(container)
-        process_data_frame = self.create_process_data_frame(container)
+        left_tool_frame = tk.Frame(container)
+        draw_tool_frame = self.create_draw_tool_frame(left_tool_frame)
+        process_data_frame = self.create_process_data_frame(left_tool_frame)
 
-        draw_tool_frame.pack(side=tk.LEFT)
-        process_data_frame.pack(side=tk.LEFT)
+        draw_tool_frame.pack()
+        process_data_frame.pack()
+        left_tool_frame.pack(side = tk.LEFT, padx= 10)
         self.pack()
         pass
 
@@ -57,7 +59,7 @@ class DrawingToolKit(ttk.Frame):
             width=20,
             orient='horizontal',
             variable=self.brush_size,
-            label="Brush Size",
+            label="Brush Size Selector",
             command=self.update_sample_brush
         )
     
@@ -71,7 +73,7 @@ class DrawingToolKit(ttk.Frame):
             width=20,
             orient='horizontal',
             variable=self.greyscale_value,
-            label="Greyscale Value",
+            label="Greyscale Value Selector",
             command=self.update_sample_brush
         )
 
@@ -91,6 +93,15 @@ class DrawingToolKit(ttk.Frame):
         return frame
 
     def create_process_data_frame(self, container):
+        style = ttk.Style()
+        style.configure(
+            'ProcessTool.TButton'
+        )
+        style.map(
+            'ProcessTool.TButton',
+              background=[('active', 'lightgreen'), ('pressed', 'blue')], 
+              foreground=[('active', 'black'), ('pressed', 'white')])
+
         frame = ttk.Frame(
             container,
             padding=(20,5),
@@ -98,11 +109,38 @@ class DrawingToolKit(ttk.Frame):
             height=700
         )
 
-        process_img_btn = ttk.Button(
+        self.threshold = tk.IntVar()
+        self.threshold.set(500)
+        threshold_slider = tk.Scale(
             frame,
-            text="Generate "
+            from_=1,
+            to=1000,
+            length=200,
+            width=20,
+            orient='horizontal',
+            variable=self.threshold,
+            label="Threshold Selector",
+            command=self.update_sample_brush,
+            bg="white"
         )
 
+        process_img_btn = ttk.Button(
+            frame, 
+            text = "Generate Next Stroke",
+            command = self.process_image,
+            style= 'ProcessTool.TButton'
+        )
+
+        self.process_x_times_btn = ttk.Button(
+            frame, 
+            text = "Generate x Next Strokes",
+            command = self.process_image,
+            style= 'ProcessTool.TButton'
+        )
+
+        threshold_slider.pack(expand=True,pady=3)
+        process_img_btn.pack(expand=True, pady=3, ipadx=3, ipady=3)
+        self.process_x_times_btn.pack(expand=True, pady=3, ipadx=3, ipady=3)
         return frame
     
     def update_sample_brush(self, value):
@@ -116,3 +154,7 @@ class DrawingToolKit(ttk.Frame):
         )
         self.sample_brush.pack_configure(pady = sample_padding + 10)
         pass
+
+    def process_image(self):
+        pass
+

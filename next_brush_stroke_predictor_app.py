@@ -35,15 +35,10 @@ class DrawingApp(tk.Tk):
         self.resizable(True, True)
         
         self.canvas_scalor = int((screen_height - 200) // 128)
-        print(self.canvas_scalor)
         pass
 
     def get_canvas_scalor(self):
         return self.canvas_scalor
-
-
-
-
 
 if __name__ == "__main__":
     drawing_app = DrawingApp()

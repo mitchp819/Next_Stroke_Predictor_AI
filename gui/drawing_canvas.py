@@ -29,7 +29,7 @@ class DrawingCanvasFrame(ttk.Frame):
         #gui
         self.canvas = tk.Canvas(self, width=self.win_x, height=self.win_y, bg='white')
         self.canvas.pack()
-        self.pack()
+        self.pack(side=tk.LEFT, expand= True)
 
         #numpy arrays for canvas and stroke
         self.np_main_canvas_data = np.ones((self.img_x, self.img_y), dtype= np.uint8) * 255
