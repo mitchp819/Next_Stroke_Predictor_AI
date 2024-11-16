@@ -24,11 +24,18 @@ from gui.drawing_tool_kit import DrawingToolKit
 class DrawingApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.geometry("2400x1000")
         self.title('Next Brush Stroke Predictor')
+
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        print(f"scrn width ={screen_width}, scrn height ={screen_height} ")
+
+        self.geometry(f"{screen_width - 200}x{screen_height - 200}")
+        
         self.resizable(True, True)
         
-        self.canvas_scalor = 6
+        self.canvas_scalor = int((screen_height - 200) // 128)
+        print(self.canvas_scalor)
         pass
 
     def get_canvas_scalor(self):
