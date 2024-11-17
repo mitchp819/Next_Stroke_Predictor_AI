@@ -2,6 +2,7 @@ input_canvas.png
 similar_img.png
 similar_stroke.png
 /data/
+/similar-img-png/
 __pycache__/
 
 gui/__pycache__/drawing_canvas.cpython-311.pyc

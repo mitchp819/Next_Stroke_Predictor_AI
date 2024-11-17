@@ -125,7 +125,18 @@ class img_processer:
 
         hf.canvas_np_img_to_png(self.data_set[output_index,0,:], "similar_img.png")
         hf.canvas_np_img_to_png(self.data_set[output_index,1,:], "similar_stroke.png")
-        
+        hf.canvas_np_img_to_png(self.data_set[output_index,0,:], "similar-img-png/similar_img.png")
+        hf.canvas_np_img_to_png(self.data_set[output_index,1,:], "similar-img-png/similar_stroke.png")
+        hf.canvas_np_img_to_png(self.data_set_4[output_index,0,:], "similar-img-png/similar_4x4_img.png")
+        hf.canvas_np_img_to_png(input_img_ds5, "similar-img-png/input_4x4_img.png")
+        hf.canvas_np_img_to_png(self.data_set_8[output_index,0,:], "similar-img-png/similar_8x8_img.png")
+        hf.canvas_np_img_to_png(input_img_ds4, "similar-img-png/input_8x8_img.png")
+        hf.canvas_np_img_to_png(self.data_set_16[output_index,0,:], "similar-img-png/similar_16x16_img.png")
+        hf.canvas_np_img_to_png(input_img_ds3, "similar-img-png/input_16x16_img.png")
+        hf.canvas_np_img_to_png(self.data_set_32[output_index,0,:], "similar-img-png/similar_32x32_img.png")
+        hf.canvas_np_img_to_png(input_img_ds2, "similar-img-png/input_32x32_img.png")
+        hf.canvas_np_img_to_png(self.data_set_64[output_index,0,:], "similar-img-png/similar_64x64_img.png")
+        hf.canvas_np_img_to_png(input_img_ds1, "similar-img-png/input_64x64_img.png")
         return self.data_set[output_index, 1, :]
 
 
