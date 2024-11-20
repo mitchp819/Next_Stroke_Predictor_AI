@@ -30,8 +30,7 @@ class DrawingApp(tk.Tk):
         screen_height = self.winfo_screenheight()
         print(f"scrn width ={screen_width}, scrn height ={screen_height} ")
 
-        self.geometry(f"{screen_width - 200}x{screen_height - 200}")
-        
+        self.geometry(f"{screen_width - 200}x{screen_height - 200}+5+5")
         self.resizable(True, True)
         
         self.canvas_scalor = int((screen_height - 200) // 128)
@@ -42,6 +41,6 @@ class DrawingApp(tk.Tk):
 
 if __name__ == "__main__":
     drawing_app = DrawingApp()
-    DrawingToolKit(drawing_app)
-    DrawingCanvasFrame(drawing_app)
+    tool_kit = DrawingToolKit(drawing_app, drawing_app.get_canvas_scalor())
+    DrawingCanvasFrame(drawing_app, tool_kit, drawing_app.get_canvas_scalor)
     drawing_app.mainloop()

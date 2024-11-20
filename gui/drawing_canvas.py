@@ -17,12 +17,12 @@ import util.image_processor as image_processing
 import util.helper_functions as hlp_fun
 
 class DrawingCanvasFrame(ttk.Frame):
-    def __init__(self, container, image_width = 128,image_height = 128):
+    def __init__(self, container, tool_kit, image_scalor = 6, image_width = 128, image_height = 128):
         super().__init__(container)
 
         self.img_x = image_width
         self.img_y = image_height
-        self.img_sclr = container.get_canvas_scalor()
+        self.img_sclr = image_scalor
         self.win_x = self.img_x * self.img_sclr
         self.win_y = self.img_y * self.img_sclr
         
