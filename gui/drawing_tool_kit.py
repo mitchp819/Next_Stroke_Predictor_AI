@@ -24,6 +24,7 @@ class DrawingToolKit(ttk.Frame):
         self.max_brush_size = 50
         self.manual_data_gathering = False
         self.auto_generating = False
+        self.drawing_canvas = None
 
         left_tool_frame = tk.Frame(container)
         draw_tool_frame = self.create_draw_tool_frame(left_tool_frame)
@@ -43,6 +44,10 @@ class DrawingToolKit(ttk.Frame):
         return self.greyscale_value.get()  
     def get_brush_size(self):
         return self.brush_size.get()
+    
+    def set_drawing_canvas(self, drawing_canvas):
+        self.drawing_canvas = drawing_canvas
+        pass
 
     def create_draw_tool_frame(self, container):
         style = ttk.Style()
@@ -138,6 +143,7 @@ class DrawingToolKit(ttk.Frame):
         self.reset_stroke_btn = ttk.Button(
             frame, 
             text="Reset Stroke",
+            command=lambda: self.drawing_canvas.reset_stroke()
         )
         self.data_capture_mode_label.pack(expand=True, pady=(20,3), ipadx=5, fill='x')
         self.data_capture_mode_btn.pack(expand=True, pady=3, fill='x')
@@ -271,5 +277,8 @@ class DrawingToolKit(ttk.Frame):
         pass
 
     def save_stroke_data(self):
-        print("Save Stroke data Example (3,2,16384)")
+        if (self.drawing_canvas != None):
+            self.drawing_canvas.save_to_data_set()
+        else: 
+            print("Must pass drawing_canvas class to toolkit class for saving to work.")
         pass

@@ -42,5 +42,6 @@ class DrawingApp(tk.Tk):
 if __name__ == "__main__":
     drawing_app = DrawingApp()
     tool_kit = DrawingToolKit(drawing_app, drawing_app.get_canvas_scalor())
-    DrawingCanvasFrame(drawing_app, tool_kit, drawing_app.get_canvas_scalor)
+    canvas = DrawingCanvasFrame(drawing_app, tool_kit, drawing_app.get_canvas_scalor())
+    tool_kit.set_drawing_canvas(canvas)
     drawing_app.mainloop()
