@@ -17,10 +17,9 @@ import window_header as wh
 class BrushTool(tk.Tk):
     def __init__(self, x = 30, y = 200, image_scalor = 6):
         super().__init__()
-        self.geometry(f'120x530+{x}+{y}')
-        self.resizable(True, True)
+        self.geometry(f'120x600+{x}+{y}')
+        self.resizable(False,False)
         self.overrideredirect(True)
-        self.attributes
         self.img_sclr = image_scalor
 
         self.brush_size = tk.IntVar()
@@ -31,6 +30,13 @@ class BrushTool(tk.Tk):
         wh.create_header_frame(self, True)
         self.create_sample_brush_frame()
         self.create_slider_frame()
+        generate_stroke_btn = tk.Button(
+            text="G",
+            font=("TkDefaultFont", 30),
+            relief='groove',
+            borderwidth=5
+        )
+        generate_stroke_btn.pack( pady = 3, padx=3)
         pass
 
     def get_greyscale_value(self):

@@ -35,7 +35,7 @@ def create_header_frame(container, include_close_btn = False):
             text='x',
             command=lambda: close_window(container),
             bg='#ADA992',
-            font=("TkDefaultFont", 5)
+            font=("TkDefaultFont", 6)
         )
         close_btn.pack(side=tk.RIGHT, expand=False, pady=3, padx=(0,5),)
     
