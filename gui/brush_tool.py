@@ -9,7 +9,7 @@ except ImportError:
   
 
 import sys
-sys.path.append('C:/Users/mpalc/OneDrive/Desktop/_projects/next-brush-stroke-predictor_workspace/next_brush_stroke_predictor_app')
+import os
 from util import helper_functions as hlp_fun
 import window_header as wh
 
@@ -34,7 +34,7 @@ class BrushTool(tk.Tk):
             text="G",
             font=("TkDefaultFont", 30),
             relief='groove',
-            borderwidth=5
+            borderwidth=5 
         )
         generate_stroke_btn.pack( pady = 3, padx=3)
         pass
@@ -126,5 +126,9 @@ class BrushTool(tk.Tk):
         pass
 
 if __name__ == "__main__":
+    sys.path.append('C:/Users/mpalc/OneDrive/Desktop/_projects/next-brush-stroke-predictor_workspace/next_brush_stroke_predictor_app')
     brush_tool = BrushTool()
     brush_tool.mainloop()
+else:
+    script_dir = os.path.dirname(os.path.abspath(__file__)) 
+    sys.path.append(script_dir)

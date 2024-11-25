@@ -10,7 +10,7 @@ except ImportError:
 
 import sys
 sys.path.append('C:/Users/mpalc/OneDrive/Desktop/_projects/next-brush-stroke-predictor_workspace/next_brush_stroke_predictor_app')
-from util import helper_functions as hlp_fun
+import util.helper_functions as hlp_fun
 import window_header as wh
 
 class GenerateUtilGUI(tk.Tk):
